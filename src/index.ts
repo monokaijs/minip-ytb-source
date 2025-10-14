@@ -4,7 +4,7 @@ import {youtubeService} from "./youtube.service";
 class YouTubeSource implements MusicSource {
   id: string = 'minip-ytb';
   name: string = 'YouTube Music';
-  version: string = '1.0.2';
+  version: string = '1.0.3';
 
   async initialize() {
     await youtubeService.start();
