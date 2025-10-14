@@ -6,13 +6,12 @@ export interface MusicSource {
   version: string;
 
   initialize(): Promise<void>;
-  search(query: string, pageToken?: string, type?: 'web' | 'music'): Promise<SearchResponse>;
+  search(query: string, pageToken?: string): Promise<SearchResponse>;
   getPlayableUrl(trackId: string, source?: string): Promise<string>;
-  getSuggestions(trackId: string, type?: 'web' | 'music', size?: number): Promise<Track[]>;
+  getSuggestions(trackId: string, size?: number): Promise<Track[]>;
   getPlaylists?(): Promise<any[]>;
   getPlaylist?(playlistId: string): Promise<any>;
   getSearchSuggestions?(query: string): Promise<string[]>;
-  getTopTracks?(): Promise<any>;
 }
 
 export interface SourceManifest {
@@ -26,6 +25,14 @@ export interface SourceManifest {
   icon?: string;
   homepage?: string;
   minAppVersion?: string;
+  manifestUrl?: string;
+}
+
+export interface SourceUpdateInfo {
+  sourceId: string;
+  currentVersion: string;
+  latestVersion: string;
+  hasUpdate: boolean;
 }
 
 export type SourceCapability = 'search' | 'stream' | 'playlists' | 'suggestions' | 'top-tracks';

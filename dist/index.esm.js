@@ -27182,8 +27182,7 @@ var YoutubeService = /*#__PURE__*/function () {
   function YoutubeService() {
     _classCallCheck(this, YoutubeService);
     this.clients = new Map();
-    this.lastSearch = new Map();
-    this.lastSearchQuery = new Map();
+    this.lastSearchQuery = '';
   }
   return _createClass(YoutubeService, [{
     key: "start",
@@ -27287,119 +27286,68 @@ var YoutubeService = /*#__PURE__*/function () {
     }
   }, {
     key: "searchVideos",
-    value: function searchVideos(query_1, pageToken_1) {
-      return __awaiter(this, arguments, void 0, function (query, pageToken) {
-        var _this2 = this;
-        var type = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'web';
-        return /*#__PURE__*/_regenerator().m(function _callee3() {
-          var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, search, client, _client, results, seenIds, _iterator, _step, item, video, videoId, shelf, _iterator2, _step2, content, _video, _videoId;
-          return _regenerator().w(function (_context3) {
-            while (1) switch (_context3.n) {
-              case 0:
-                if (!(pageToken && _this2.lastSearchQuery.get(type) === query && ((_a = _this2.lastSearch.get(type)) === null || _a === void 0 ? void 0 : _a.has_continuation))) {
-                  _context3.n = 2;
-                  break;
-                }
-                _context3.n = 1;
-                return _this2.lastSearch.get(type).getContinuation();
-              case 1:
-                search = _context3.v;
-                _context3.n = 9;
+    value: function searchVideos(query, pageToken) {
+      return __awaiter(this, void 0, void 0, /*#__PURE__*/_regenerator().m(function _callee3() {
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, search, client, results, seenIds, _iterator, _step, item, video, videoId;
+        return _regenerator().w(function (_context3) {
+          while (1) switch (_context3.n) {
+            case 0:
+              if (!(pageToken && this.lastSearchQuery === query && ((_a = this.lastSearch) === null || _a === void 0 ? void 0 : _a.has_continuation))) {
+                _context3.n = 2;
                 break;
-              case 2:
-                if (!(type === 'music')) {
-                  _context3.n = 5;
-                  break;
-                }
-                _context3.n = 3;
-                return _this2.getClient(eD.MUSIC);
-              case 3:
-                client = _context3.v;
-                _context3.n = 4;
-                return client.music.search(query, {
-                  type: "song"
-                });
-              case 4:
-                search = _context3.v;
-                console.log('search', search);
-                _context3.n = 8;
-                break;
-              case 5:
-                _context3.n = 6;
-                return _this2.getClient();
-              case 6:
-                _client = _context3.v;
-                _context3.n = 7;
-                return _client.search(query);
-              case 7:
-                search = _context3.v;
-              case 8:
-                _this2.lastSearchQuery.set(type, query);
-              case 9:
-                _this2.lastSearch.set(type, search);
-                results = [];
-                seenIds = new Set();
-                _iterator = _createForOfIteratorHelper(type === 'music' ? search.contents : search.results);
-                try {
-                  for (_iterator.s(); !(_step = _iterator.n()).done;) {
-                    item = _step.value;
-                    if (item.type === 'Video' || item.type === 'MusicResponsiveListItem') {
-                      video = item;
-                      videoId = video.id || video.video_id;
-                      if (videoId && !seenIds.has(videoId)) {
-                        seenIds.add(videoId);
-                        results.push({
-                          id: videoId,
-                          title: ((_b = video.title) === null || _b === void 0 ? void 0 : _b.text) || video.title || '',
-                          artist: ((_c = video.author) === null || _c === void 0 ? void 0 : _c.name) || ((_e = (_d = video.artists) === null || _d === void 0 ? void 0 : _d[0]) === null || _e === void 0 ? void 0 : _e.name) || video.author || '',
-                          thumbnail: ((_g = (_f = video.thumbnails) === null || _f === void 0 ? void 0 : _f[0]) === null || _g === void 0 ? void 0 : _g.url) || ((_k = (_j = (_h = video.thumbnail) === null || _h === void 0 ? void 0 : _h.contents) === null || _j === void 0 ? void 0 : _j[0]) === null || _k === void 0 ? void 0 : _k.url) || '',
-                          duration: ((_l = video.duration) === null || _l === void 0 ? void 0 : _l.seconds) || video.duration || 0,
-                          viewCount: ((_m = video.view_count) === null || _m === void 0 ? void 0 : _m.text) || ''
-                        });
-                      }
-                    }
-                    if (item.type === 'MusicShelf') {
-                      shelf = item.as(MusicShelf);
-                      _iterator2 = _createForOfIteratorHelper(shelf.contents);
-                      try {
-                        for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
-                          content = _step2.value;
-                          if (content.type === 'MusicResponsiveListItem') {
-                            _video = content.as(MusicResponsiveListItem);
-                            _videoId = _video.id;
-                            if (_videoId && !seenIds.has(_videoId)) {
-                              seenIds.add(_videoId);
-                              results.push({
-                                id: _videoId,
-                                title: _video.title || '',
-                                artist: ((_p = (_o = _video.artists) === null || _o === void 0 ? void 0 : _o[0]) === null || _p === void 0 ? void 0 : _p.name) || 'Unknown',
-                                thumbnail: ((_s = (_r = (_q = _video.thumbnail) === null || _q === void 0 ? void 0 : _q.contents) === null || _r === void 0 ? void 0 : _r[0]) === null || _s === void 0 ? void 0 : _s.url) || '',
-                                duration: ((_t = _video.duration) === null || _t === void 0 ? void 0 : _t.seconds) || 0,
-                                viewCount: ((_u = _video.view_count) === null || _u === void 0 ? void 0 : _u.text) || ''
-                              });
-                            }
-                          }
-                        }
-                      } catch (err) {
-                        _iterator2.e(err);
-                      } finally {
-                        _iterator2.f();
-                      }
+              }
+              _context3.n = 1;
+              return this.lastSearch.getContinuation();
+            case 1:
+              search = _context3.v;
+              _context3.n = 5;
+              break;
+            case 2:
+              _context3.n = 3;
+              return this.getClient();
+            case 3:
+              client = _context3.v;
+              _context3.n = 4;
+              return client.search(query);
+            case 4:
+              search = _context3.v;
+              this.lastSearchQuery = query;
+            case 5:
+              this.lastSearch = search;
+              results = [];
+              seenIds = new Set();
+              _iterator = _createForOfIteratorHelper(search.results);
+              try {
+                for (_iterator.s(); !(_step = _iterator.n()).done;) {
+                  item = _step.value;
+                  if (item.type === 'Video' || item.type === 'MusicResponsiveListItem') {
+                    video = item;
+                    videoId = video.id || video.video_id;
+                    if (videoId && !seenIds.has(videoId)) {
+                      seenIds.add(videoId);
+                      results.push({
+                        id: videoId,
+                        title: ((_b = video.title) === null || _b === void 0 ? void 0 : _b.text) || video.title || '',
+                        artist: ((_c = video.author) === null || _c === void 0 ? void 0 : _c.name) || ((_e = (_d = video.artists) === null || _d === void 0 ? void 0 : _d[0]) === null || _e === void 0 ? void 0 : _e.name) || video.author || '',
+                        thumbnail: ((_g = (_f = video.thumbnails) === null || _f === void 0 ? void 0 : _f[0]) === null || _g === void 0 ? void 0 : _g.url) || ((_k = (_j = (_h = video.thumbnail) === null || _h === void 0 ? void 0 : _h.contents) === null || _j === void 0 ? void 0 : _j[0]) === null || _k === void 0 ? void 0 : _k.url) || '',
+                        duration: ((_l = video.duration) === null || _l === void 0 ? void 0 : _l.seconds) || video.duration || 0,
+                        viewCount: ((_m = video.view_count) === null || _m === void 0 ? void 0 : _m.text) || ''
+                      });
                     }
                   }
-                } catch (err) {
-                  _iterator.e(err);
-                } finally {
-                  _iterator.f();
                 }
-                return _context3.a(2, {
-                  results: results,
-                  nextPageToken: search.has_continuation ? 'continue' : undefined
-                });
-            }
-          }, _callee3);
-        })();
-      });
+              } catch (err) {
+                _iterator.e(err);
+              } finally {
+                _iterator.f();
+              }
+              return _context3.a(2, {
+                results: results,
+                nextPageToken: search.has_continuation ? 'continue' : undefined
+              });
+          }
+        }, _callee3, this);
+      }));
     }
   }, {
     key: "getPlaylists",
@@ -27477,7 +27425,7 @@ var YoutubeService = /*#__PURE__*/function () {
     key: "getSearchSuggestions",
     value: function getSearchSuggestions(query) {
       return __awaiter(this, void 0, void 0, /*#__PURE__*/_regenerator().m(function _callee7() {
-        var client, _t2;
+        var client, _t;
         return _regenerator().w(function (_context7) {
           while (1) switch (_context7.p = _context7.n) {
             case 0:
@@ -27492,8 +27440,8 @@ var YoutubeService = /*#__PURE__*/function () {
               return _context7.a(2, _context7.v);
             case 3:
               _context7.p = 3;
-              _t2 = _context7.v;
-              console.error('Failed to get search suggestions:', _t2);
+              _t = _context7.v;
+              console.error('Failed to get search suggestions:', _t);
               return _context7.a(2, []);
           }
         }, _callee7, this, [[0, 3]]);
@@ -27503,17 +27451,16 @@ var YoutubeService = /*#__PURE__*/function () {
     key: "getYouTubeSuggestions",
     value: function getYouTubeSuggestions(videoId_1) {
       return __awaiter(this, arguments, void 0, function (videoId) {
-        var _this3 = this;
-        var type = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'web';
-        var size = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 10;
+        var _this2 = this;
+        var size = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 10;
         return /*#__PURE__*/_regenerator().m(function _callee9() {
-          var _a, client, info, videoIds, videos, _t4;
+          var _a, client, info, videoIds, videos, _t3;
           return _regenerator().w(function (_context9) {
             while (1) switch (_context9.p = _context9.n) {
               case 0:
                 _context9.p = 0;
                 _context9.n = 1;
-                return _this3.getClient(type === 'music' ? eD.MUSIC : eD.WEB);
+                return _this2.getClient(eD.WEB);
               case 1:
                 client = _context9.v;
                 _context9.n = 2;
@@ -27525,7 +27472,7 @@ var YoutubeService = /*#__PURE__*/function () {
                 })) || [];
                 _context9.n = 3;
                 return Promise.all(videoIds.map(function (id) {
-                  return __awaiter(_this3, void 0, void 0, /*#__PURE__*/_regenerator().m(function _callee8() {
+                  return __awaiter(_this2, void 0, void 0, /*#__PURE__*/_regenerator().m(function _callee8() {
                     return _regenerator().w(function (_context8) {
                       while (1) switch (_context8.p = _context8.n) {
                         case 0:
@@ -27544,7 +27491,6 @@ var YoutubeService = /*#__PURE__*/function () {
                 }));
               case 3:
                 videos = _context9.v;
-                console.log('videos', videos);
                 return _context9.a(2, videos.filter(function (video) {
                   return !!video;
                 }).slice(0, size).filter(function (video) {
@@ -27565,8 +27511,8 @@ var YoutubeService = /*#__PURE__*/function () {
                 }));
               case 4:
                 _context9.p = 4;
-                _t4 = _context9.v;
-                console.log('error', _t4);
+                _t3 = _context9.v;
+                console.log('error', _t3);
                 return _context9.a(2, []);
             }
           }, _callee9, null, [[0, 4]]);
@@ -27601,18 +27547,15 @@ var YouTubeSource = /*#__PURE__*/function () {
     }
   }, {
     key: "search",
-    value: function search(query_1, pageToken_1) {
-      return __awaiter(this, arguments, void 0, function (query, pageToken) {
-        var type = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'web';
-        return /*#__PURE__*/_regenerator().m(function _callee2() {
-          return _regenerator().w(function (_context2) {
-            while (1) switch (_context2.n) {
-              case 0:
-                return _context2.a(2, youtubeService.searchVideos(query, pageToken, type));
-            }
-          }, _callee2);
-        })();
-      });
+    value: function search(query, pageToken) {
+      return __awaiter(this, void 0, void 0, /*#__PURE__*/_regenerator().m(function _callee2() {
+        return _regenerator().w(function (_context2) {
+          while (1) switch (_context2.n) {
+            case 0:
+              return _context2.a(2, youtubeService.searchVideos(query, pageToken));
+          }
+        }, _callee2);
+      }));
     }
   }, {
     key: "getPlayableUrl",
@@ -27630,13 +27573,12 @@ var YouTubeSource = /*#__PURE__*/function () {
     key: "getSuggestions",
     value: function getSuggestions(trackId_1) {
       return __awaiter(this, arguments, void 0, function (trackId) {
-        var type = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'web';
-        var size = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 10;
+        var size = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 10;
         return /*#__PURE__*/_regenerator().m(function _callee4() {
           return _regenerator().w(function (_context4) {
             while (1) switch (_context4.n) {
               case 0:
-                return _context4.a(2, youtubeService.getYouTubeSuggestions(trackId, type, size));
+                return _context4.a(2, youtubeService.getYouTubeSuggestions(trackId, size));
             }
           }, _callee4);
         })();

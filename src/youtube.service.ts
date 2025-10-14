@@ -7,8 +7,8 @@ const YOUTUBE_BASE = 'https://m.youtube.com';
 
 class YoutubeService {
   clients: Map<ClientType, Innertube> = new Map();
-  private lastSearch: Map<string, any> = new Map();
-  private lastSearchQuery: Map<string, string> = new Map();
+  private lastSearch: any;
+  private lastSearchQuery: string = '';
 
   async start() {
     await this.getClient(ClientType.WEB);
@@ -53,31 +53,21 @@ class YoutubeService {
     this.clients.clear();
   }
 
-  async searchVideos(query: string, pageToken?: string, type: 'web' | 'music' = 'web'): Promise<SearchResponse> {
-    const searchKey = `${type}:${query}`;
-
+  async searchVideos(query: string, pageToken?: string): Promise<SearchResponse> {
     let search;
-    if (pageToken && this.lastSearchQuery.get(type) === query && this.lastSearch.get(type)?.has_continuation) {
-      search = await this.lastSearch.get(type).getContinuation();
+    if (pageToken && this.lastSearchQuery === query && this.lastSearch?.has_continuation) {
+      search = await this.lastSearch.getContinuation();
     } else {
-      if (type === 'music') {
-        const client = await this.getClient(ClientType.MUSIC);
-        search = await client.music.search(query, {
-          type: "song",
-        });
-        console.log('search', search);
-      } else {
-        const client = await this.getClient();
-        search = await client.search(query);
-      }
-      this.lastSearchQuery.set(type, query);
+      const client = await this.getClient();
+      search = await client.search(query);
+      this.lastSearchQuery = query;
     }
-    this.lastSearch.set(type, search);
+    this.lastSearch = search;
 
     const results: VideoSearchResult[] = [];
     const seenIds = new Set<string>();
 
-    for (const item of (type === 'music' ? search.contents : search.results)) {
+    for (const item of search.results) {
       if (item.type === 'Video' || item.type === 'MusicResponsiveListItem') {
         const video = item as any;
         const videoId = video.id || video.video_id;
@@ -93,28 +83,7 @@ class YoutubeService {
           });
         }
       }
-      if (item.type === 'MusicShelf') {
-        const shelf = item.as(YTNodes.MusicShelf);
-        for (const content of shelf.contents) {
-          if (content.type === 'MusicResponsiveListItem') {
-            const video = content.as(YTNodes.MusicResponsiveListItem);
-            const videoId = video.id;
-            if (videoId && !seenIds.has(videoId)) {
-              seenIds.add(videoId);
-              results.push({
-                id: videoId,
-                title: video.title || '',
-                artist: video.artists?.[0]?.name || 'Unknown',
-                thumbnail: video.thumbnail?.contents?.[0]?.url || '',
-                duration: video.duration?.seconds || 0,
-                viewCount: video.view_count?.text || '',
-              });
-            }
-          }
-        }
-      }
     }
-
     return {
       results,
       nextPageToken: search.has_continuation ? 'continue' : undefined,
@@ -157,9 +126,9 @@ class YoutubeService {
     }
   }
 
-  async getYouTubeSuggestions(videoId: string, type: 'web' | 'music' = 'web', size: number = 10): Promise<Track[]> {
+  async getYouTubeSuggestions(videoId: string, size: number = 10): Promise<Track[]> {
     try {
-      const client = await this.getClient(type === 'music' ? ClientType.MUSIC : ClientType.WEB);
+      const client = await this.getClient(ClientType.WEB);
       const info = await client.getInfo(videoId);
       const videoIds = info.watch_next_feed?.map((x: any) => x.as(YTNodes.LockupView).content_id) || [];
       const videos = await Promise.all(videoIds.map(async (id: string) => {
@@ -169,9 +138,6 @@ class YoutubeService {
           return null as any;
         }
       }));
-
-      console.log('videos', videos);
-
       return (videos).filter(video => !!video).slice(0, size).filter(video => !!video.basic_info && !!video.basic_info.id).map(video => {
         const info = video.basic_info!;
         return {
