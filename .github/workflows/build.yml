@@ -28,28 +28,29 @@ jobs:
       - name: Build bundle
         run: npm run build
 
-      - name: Get version
+      - name: Generate version tag
         id: version
         run: |
-          VERSION=$(node -p "require('./package.json').version")
-          SHORT_SHA=$(git rev-parse --short HEAD)
-          echo "version=${VERSION}" >> $GITHUB_OUTPUT
-          echo "tag=v${VERSION}-${SHORT_SHA}" >> $GITHUB_OUTPUT
+          # Auto-increment: YYYY.MM.DD-<run_number>
+          DATE_TAG=$(date -u +'%Y.%m.%d')
+          TAG="v${DATE_TAG}-${{ github.run_number }}"
+          echo "tag=${TAG}" >> $GITHUB_OUTPUT
+          echo "Generated tag: ${TAG}"
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.version.outputs.tag }}
-          name: "v${{ steps.version.outputs.version }} (${{ steps.version.outputs.tag }})"
+          name: ${{ steps.version.outputs.tag }}
           body: |
-            Auto-built from commit ${{ github.sha }}
+            Auto-built from [`${{ github.sha }}`](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})
 
-            **Bundle URL:**
+            **Install URL:**
             ```
             https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.tag }}/youtube.bundle.js
             ```
 
-            **Latest URL (always points to newest):**
+            **Latest (always newest):**
             ```
             https://github.com/${{ github.repository }}/releases/latest/download/youtube.bundle.js
             ```

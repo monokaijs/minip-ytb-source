@@ -27,159 +27,19 @@ import type {
 const SOURCE_ID = 'youtube';
 const YT_USER_AGENT = 'com.google.android.youtube/19.29.37 (Linux; U; Android 14) gzip';
 
-// ─── YouTube-specific internal types ────────────────────────────
-
-interface InnertubeFormat {
-  has_video: boolean;
-  has_audio: boolean;
-  height?: number;
-  mime_type?: string;
-  quality_label?: string;
-  content_length?: number;
-  decipher(player: unknown): Promise<string>;
-}
-
-interface InnertubeStreamingData {
-  hls_manifest_url?: string;
-  formats?: InnertubeFormat[];
-  adaptive_formats?: InnertubeFormat[];
-}
-
-interface InnertubeVideoInfo {
-  streaming_data?: InnertubeStreamingData;
-  basic_info?: { title?: string; channel?: { name?: string }; author?: string };
-  chooseFormat(options: { quality: string; type: string }): InnertubeFormat;
-  toDash(): Promise<string>;
-}
-
-interface VideoFormatEntry {
-  format: InnertubeFormat;
-  hasAudio: boolean;
-  label: string;
-}
-
-interface VideoInfoCache {
-  contentId: string;
-  info: InnertubeVideoInfo;
-  innertube: Innertube;
-}
-
-interface HlsManifestCache {
-  contentId: string;
-  text: string;
-  hlsUrl: string;
-}
-
-interface InnertubeTextRun {
-  text: string;
-  endpoint?: { payload?: { browseId?: string } };
-}
-
-interface InnertubeText {
-  text?: string;
-  runs?: InnertubeTextRun[];
-  toString?(): string;
-}
-
-interface InnertubeFlexColumn {
-  title?: InnertubeText;
-  text?: InnertubeText;
-}
-
-interface InnertubeArtist {
-  name?: string;
-  text?: string;
-}
-
-interface InnertubeEndpoint {
-  payload?: {
-    browseId?: string;
-    videoId?: string;
-  };
-}
-
-interface InnertubeListItem {
-  type?: string;
-  id?: string;
-  title?: InnertubeText;
-  subtitle?: InnertubeText;
-  endpoint?: InnertubeEndpoint;
-  navigation_endpoint?: InnertubeEndpoint;
-  overlay?: { content?: { endpoint?: InnertubeEndpoint; payload?: { videoId?: string } } };
-  on_tap?: { payload?: { videoId?: string } };
-  flex_columns?: InnertubeFlexColumn[];
-  flexColumns?: InnertubeFlexColumn[];
-  artists?: InnertubeArtist[];
-  author?: { name?: string };
-  thumbnail?: unknown;
-  thumbnails?: Array<{ url?: string }>;
-  thumbnail_renderer?: unknown;
-  thumbnailRenderer?: unknown;
-  [key: string]: unknown;
-}
-
-interface InnertubeSection {
-  type?: string;
-  header?: { title?: InnertubeText };
-  contents?: InnertubeListItem[];
-}
-
-interface InnertubeVideoResult {
-  id?: string;
-  video_id?: string;
-  title?: string | InnertubeText;
-  author?: { name?: string } | string;
-  best_thumbnail?: { url?: string };
-  thumbnails?: Array<{ url?: string }>;
-  duration?: { seconds?: number } | number;
-}
-
-interface LockupThumbnail {
-  url?: string;
-}
-
-interface LockupContentImage {
-  collectionThumbnailViewModel?: { primaryThumbnail?: { thumbnailViewModel?: { image?: { sources?: LockupThumbnail[] } } } };
-  thumbnailViewModel?: { image?: { sources?: LockupThumbnail[] } };
-  decoratedThumbnailViewModel?: { thumbnail?: { thumbnailViewModel?: { image?: { sources?: LockupThumbnail[] } } } };
-}
-
-interface LockupMetadataPart {
-  text?: { content?: string };
-}
-
-interface LockupMetadataRow {
-  metadataParts?: LockupMetadataPart[];
-}
-
-interface LockupViewModel {
-  contentId?: string;
-  metadata?: {
-    lockupMetadataViewModel?: {
-      title?: { content?: string };
-      metadata?: {
-        contentMetadataViewModel?: {
-          metadataRows?: LockupMetadataRow[];
-        };
-      };
-    };
-  };
-  contentImage?: LockupContentImage;
-}
-
-interface CompactVideoRenderer {
-  videoId?: string;
-  title?: { simpleText?: string; runs?: Array<{ text?: string }> };
-  longBylineText?: { runs?: Array<{ text?: string }> };
-  shortBylineText?: { runs?: Array<{ text?: string }> };
-  thumbnail?: { thumbnails?: Array<{ url?: string }> };
-  lengthText?: { simpleText?: string };
-}
-
-interface NextEndpointResult {
-  lockupViewModel?: LockupViewModel;
-  compactVideoRenderer?: CompactVideoRenderer;
-}
+import type {
+  InnertubeFormat,
+  InnertubeVideoInfo,
+  VideoFormatEntry,
+  VideoInfoCache,
+  HlsManifestCache,
+  InnertubeText,
+  InnertubeListItem,
+  InnertubeSection,
+  InnertubeVideoResult,
+  LockupViewModel,
+  NextEndpointResult,
+} from './types';
 
 // ─── Player Cacher (fetch-only, no file system) ─────────────────
 
