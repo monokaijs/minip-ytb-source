@@ -25,7 +25,12 @@ const buildOptions: esbuild.BuildOptions = {
   bundle: true,
   platform: 'neutral',
   format: 'cjs',
-  target: 'es2017',
+  target: 'es2022',
+  supported: {
+    // Hermes doesn't support async generators — transpile them
+    'async-generator': false,
+    'for-await': false,
+  },
   outfile: path.join(outdir, 'youtube.bundle.js'),
   minify: !isWatch,
   sourcemap: isWatch ? 'inline' : false,
