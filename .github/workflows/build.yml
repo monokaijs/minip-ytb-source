@@ -22,20 +22,33 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Generate version
+        id: version
+        run: |
+          DATE_TAG=$(date -u +'%Y.%m.%d')
+          TAG="v${DATE_TAG}-${{ github.run_number }}"
+          VERSION="${DATE_TAG}.${{ github.run_number }}"
+          echo "tag=${TAG}" >> $GITHUB_OUTPUT
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Patch manifest version
+        run: |
+          node -e "
+            const fs = require('fs');
+            const m = JSON.parse(fs.readFileSync('manifest.json', 'utf8'));
+            m.version = '${{ steps.version.outputs.version }}';
+            fs.writeFileSync('manifest.json', JSON.stringify(m, null, 2) + '\n');
+          "
+          cat manifest.json
+
       - name: Typecheck
         run: npm run typecheck
 
       - name: Build bundle
         run: npm run build
 
-      - name: Generate version tag
-        id: version
-        run: |
-          # Auto-increment: YYYY.MM.DD-<run_number>
-          DATE_TAG=$(date -u +'%Y.%m.%d')
-          TAG="v${DATE_TAG}-${{ github.run_number }}"
-          echo "tag=${TAG}" >> $GITHUB_OUTPUT
-          echo "Generated tag: ${TAG}"
+      - name: Copy manifest to dist
+        run: cp manifest.json dist/manifest.json
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
@@ -45,14 +58,16 @@ jobs:
           body: |
             Auto-built from [`${{ github.sha }}`](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})
 
-            **Install URL:**
-            ```
-            https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.tag }}/youtube.bundle.js
-            ```
-
-            **Latest (always newest):**
+            **Bundle:**
             ```
             https://github.com/${{ github.repository }}/releases/latest/download/youtube.bundle.js
             ```
-          files: dist/youtube.bundle.js
+
+            **Manifest:**
+            ```
+            https://github.com/${{ github.repository }}/releases/latest/download/manifest.json
+            ```
+          files: |
+            dist/youtube.bundle.js
+            dist/manifest.json
           make_latest: true
