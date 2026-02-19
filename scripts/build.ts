@@ -25,7 +25,7 @@ const buildOptions: esbuild.BuildOptions = {
   bundle: true,
   platform: 'neutral',
   format: 'cjs',
-  target: 'es2020',
+  target: 'es2017',
   outfile: path.join(outdir, 'youtube.bundle.js'),
   minify: !isWatch,
   sourcemap: isWatch ? 'inline' : false,
