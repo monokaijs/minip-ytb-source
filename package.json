@@ -6,18 +6,27 @@
   "main": "dist/youtube.bundle.js",
   "types": "types/index.ts",
   "scripts": {
-    "build": "tsx scripts/build.ts",
-    "build:watch": "tsx scripts/build.ts --watch",
+    "build": "npx rimraf dist && npx rollup -c rollup.config.mjs",
     "typecheck": "tsc --noEmit",
-    "clean": "rm -rf dist"
+    "clean": "rimraf dist"
   },
   "dependencies": {
     "youtubei.js": "^12.2.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.28.0",
+    "@babel/plugin-syntax-import-attributes": "^7.28.6",
+    "@babel/preset-env": "^7.28.0",
+    "@rollup/plugin-babel": "^6.1.0",
+    "@rollup/plugin-commonjs": "^28.0.0",
+    "@rollup/plugin-json": "^6.1.0",
+    "@rollup/plugin-node-resolve": "^16.0.0",
+    "@rollup/plugin-terser": "^0.4.4",
     "@types/node": "^25.3.0",
-    "esbuild": "^0.24.0",
-    "tsx": "^4.19.0",
+    "rimraf": "^6.0.0",
+    "rollup": "^4.52.0",
+    "rollup-plugin-typescript2": "^0.36.0",
+    "tslib": "^2.8.0",
     "typescript": "^5.3.0"
   },
   "files": [
