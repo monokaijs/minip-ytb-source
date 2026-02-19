@@ -1,0 +1,16 @@
+{
+  "id": "youtube",
+  "name": "YouTube Music",
+  "version": "1.0.0",
+  "bundleUrl": "https://github.com/monokaijs/minip-ytb-source/releases/latest/download/youtube.bundle.js",
+  "capabilities": {
+    "audio": true,
+    "video": true,
+    "search": true,
+    "feed": true,
+    "suggestions": true,
+    "playlists": true,
+    "movies": false,
+    "subtitles": false
+  }
+}

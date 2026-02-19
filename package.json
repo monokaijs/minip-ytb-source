@@ -1,0 +1,31 @@
+{
+  "name": "@minip/source-youtube",
+  "version": "1.0.0",
+  "description": "YouTube Music source plugin for Minip",
+  "private": true,
+  "main": "dist/youtube.bundle.js",
+  "types": "types/index.ts",
+  "scripts": {
+    "build": "tsx scripts/build.ts",
+    "build:watch": "tsx scripts/build.ts --watch",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "youtubei.js": "^12.2.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.3.0"
+  },
+  "files": [
+    "dist/",
+    "types/",
+    "manifest.json",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  }
+}

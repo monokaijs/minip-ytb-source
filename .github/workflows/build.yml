@@ -1,0 +1,57 @@
+name: Build & Release
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build bundle
+        run: npm run build
+
+      - name: Get version
+        id: version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "tag=v${VERSION}-${SHORT_SHA}" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: "v${{ steps.version.outputs.version }} (${{ steps.version.outputs.tag }})"
+          body: |
+            Auto-built from commit ${{ github.sha }}
+
+            **Bundle URL:**
+            ```
+            https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.tag }}/youtube.bundle.js
+            ```
+
+            **Latest URL (always points to newest):**
+            ```
+            https://github.com/${{ github.repository }}/releases/latest/download/youtube.bundle.js
+            ```
+          files: dist/youtube.bundle.js
+          make_latest: true
