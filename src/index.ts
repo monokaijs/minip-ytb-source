@@ -11,7 +11,6 @@
  */
 
 import { Innertube, ClientType, Platform as YTPlatform } from 'youtubei.js';
-import type { Types } from 'youtubei.js';
 import type { SourceHost } from '../types/host';
 import type { MediaSource } from '../types/source';
 import type {
@@ -226,14 +225,14 @@ export default function createYouTubeSource(host: SourceHost): MediaSource {
 
   function setupEval(): void {
     YTPlatform.shim.eval = async (
-      data: Types.BuildScriptResult,
-      env: Record<string, Types.VMPrimative>,
+      code: string,
+      env: Record<string, string | number | boolean | null | undefined>,
     ) => {
       const properties: string[] = [];
       if (env.n) properties.push(`n: exportedVars.nFunction("${env.n}")`);
       if (env.sig) properties.push(`sig: exportedVars.sigFunction("${env.sig}")`);
-      const code = `${data.output}\nreturn { ${properties.join(', ')} }`;
-      return new Function(code)();
+      const fullCode = `${code}\nreturn { ${properties.join(', ')} }`;
+      return new Function(fullCode)();
     };
   }
   setupEval();
@@ -310,7 +309,7 @@ export default function createYouTubeSource(host: SourceHost): MediaSource {
 
       if (host.platform === 'ios') {
         try {
-          const basicInfo = await innertube.getBasicInfo(contentId, { client: 'IOS' });
+          const basicInfo = await innertube.getBasicInfo(contentId, 'IOS' as 'IOS');
           const hlsUrl = basicInfo.streaming_data?.hls_manifest_url;
           if (hlsUrl) {
             host.log('Got HLS URL for', contentId);
@@ -363,7 +362,7 @@ export default function createYouTubeSource(host: SourceHost): MediaSource {
 
           if (!hlsUrl) {
             try {
-              const basicInfo = await innertube.getBasicInfo(contentId, { client: 'IOS' });
+              const basicInfo = await innertube.getBasicInfo(contentId, 'IOS' as 'IOS');
               hlsUrl = basicInfo.streaming_data?.hls_manifest_url;
             } catch (e) {
               host.log('IOS client getBasicInfo failed:', e);
